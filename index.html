@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QueOfertazas - Agregador de Ofertas Argentina</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #cbd5e1;
+            --text: #1e293b;
+            --background: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --error: #ef4444;
+            --success: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .logo p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        main {
+            padding: 2rem 0;
+        }
+
+        .filtros {
+            background-color: var(--card);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .filtros h2 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .filtros-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filtro-grupo {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filtro-grupo label {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .filtro-grupo select {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+        .filtro-botones {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-primario {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .btn-primario:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secundario {
+            background-color: var(--secondary);
+            color: var(--text);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-secundario:hover {
+            background-color: #bbc7d7;
+        }
+
+        .ofertas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .oferta-card {
+            background-color: var(--card);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .oferta-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .oferta-imagen {
+            position: relative;
+            height: 180px;
+            background-color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .oferta-imagen img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            padding: 0.5rem;
+        }
+
+        .oferta-descuento {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: var(--error);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .oferta-envio {
+            position: absolute;
+            bottom: 0.5rem;
+            left: 0.5rem;
+            background-color: var(--success);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+        }
+
+        .oferta-contenido {
+            padding: 1rem;
+        }
+
+        .oferta-titulo {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            height: 2.8em;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .oferta-precios {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .oferta-precio-actual {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .oferta-precio-original {
+            font-size: 0.9rem;
+            text-decoration: line-through;
+            color: #64748b;
+        }
+
+        .oferta-cuotas {
+            font-size: 0.8rem;
+            color: var(--success);
+            margin-bottom: 0.5rem;
+        }
+
+        .oferta-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .oferta-tienda {
+            font-size: 0.75rem;
+            color: #64748b;
+            background-color: #f1f5f9;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .oferta-link {
+            font-size: 0.8rem;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        footer {
+            background-color: #1e293b;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        footer p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .filtros-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .ofertas-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+            
+            .oferta-imagen {
+                height: 140px;
+            }
+        }
+    </style>
+    <!-- Script para evitar problemas con DarkReader -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Eliminar atributos de DarkReader que causan errores de hidratación
+            const html = document.documentElement;
+            if (html.hasAttribute('data-darkreader-mode')) {
+                html.removeAttribute('data-darkreader-mode');
+            }
+            if (html.hasAttribute('data-darkreader-scheme')) {
+                html.removeAttribute('data-darkreader-scheme');
+            }
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>QueOfertazas</h1>
+                <p>Las mejores ofertas de Argentina</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="filtros">
+            <h2>Filtrar ofertas</h2>
+            <div class="filtros-grid">
+                <div class="filtro-grupo">
+                    <label for="categoria">Categoría</label>
+                    <select id="categoria">
+                        <option value="">Todas las categorías</option>
+                        <option value="electronica">Electrónica</option>
+                        <option value="hogar">Hogar</option>
+                        <option value="computacion">Computación</option>
+                        <option value="moda">Moda y Calzado</option>
+                        <option value="alimentos">Alimentos y Bebidas</option>
+                    </select>
+                </div>
+                <div class="filtro-grupo">
+                    <label for="tienda">Tienda</label>
+                    <select id="tienda">
+                        <option value="">Todas las tiendas</option>
+                        <option value="mercadolibre">MercadoLibre</option>
+                        <option value="fravega">Frávega</option>
+                        <option value="garbarino">Garbarino</option>
+                        <option value="musimundo">Musimundo</option>
+                        <option value="carrefour">Carrefour</option>
+                    </select>
+                </div>
+                <div class="filtro-grupo">
+                    <label for="ordenar">Ordenar por</label>
+                    <select id="ordenar">
+                        <option value="descuento">Mayor descuento</option>
+                        <option value="precio">Menor precio</option>
+                        <option value="recientes">Más recientes</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filtro-botones">
+                <button id="aplicar-filtros" class="btn-primario">Aplicar filtros</button>
+                <button id="limpiar-filtros" class="btn-secundario">Limpiar</button>
+            </div>
+        </section>
+
+        <section class="ofertas">
+            <div class="ofertas-grid" id="ofertas-contenedor">
+                <!-- Las ofertas se cargarán aquí con JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 QueOfertazas - Agregador de ofertas argentinas</p>
+            <p>Este sitio no está afiliado con MercadoLibre ni ninguna tienda mencionada.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Datos de ofertas estáticas
+        const OFERTAS = [
+            {
+                id: "ML1",
+                title: "Samsung Galaxy S23 Ultra 256GB",
+                price: 899999,
+                originalPrice: 1199999,
+                discountPercentage: 25,
+                category: "electronica",
+                link: "https://www.mercadolibre.com.ar/samsung-galaxy-s23-ultra-256gb",
+                imageUrl: "https://http2.mlstatic.com/D_NQ_NP_2X_964934-MLA53414860459_012023-F.webp",
+                sourceWebsite: "mercadolibre.com.ar",
+                store: "mercadolibre",
+                freeShipping: true,
+                installments: 12
+            },
+            {
+                id: "ML2",
+                title: "Smart TV Philips 55 Pulgadas 4K UHD",
+                price: 349999,
+                originalPrice: 499999,
+                discountPercentage: 30,
+                category: "electronica",
+                link: "https://www.mercadolibre.com.ar/smart-tv-philips-4k",
+                imageUrl: "https://http2.mlstatic.com/D_NQ_NP_2X_737516-MLA48007684849_102021-F.webp",
+                sourceWebsite: "mercadolibre.com.ar",
+                store: "mercadolibre",
+                freeShipping: true,
+                installments: 6
+            },
+            {
+                id: "FR1",
+                title: "Heladera Inverter No Frost Whirlpool 462 Litros",
+                price: 649999,
+                originalPrice: 899999,
+                discountPercentage: 28,
+                category: "hogar",
+                link: "https://www.fravega.com.ar/heladera-whirlpool",
+                imageUrl: "https://images.fravega.com/f300/d7ca24bf5639a7db78c31b56b8a286ac.jpg",
+                sourceWebsite: "fravega.com.ar",
+                store: "fravega",
+                freeShipping: true,
+                installments: 18
+            },
+            {
+                id: "GA1",
+                title: "Notebook Lenovo IdeaPad 15.6\" Core i5 8GB 512GB SSD",
+                price: 529999,
+                originalPrice: 699999,
+                discountPercentage: 24,
+                category: "computacion",
+                link: "https://www.garbarino.com.ar/notebook-lenovo-ideapad",
+                imageUrl: "https://http2.mlstatic.com/D_NQ_NP_2X_618633-MLA69228975227_052023-F.webp",
+                sourceWebsite: "garbarino.com.ar",
+                store: "garbarino",
+                freeShipping: false,
+                installments: 12
+            },
+            {
+                id: "ML3",
+                title: "Zapatillas Nike Air Max 90 Running",
+                price: 89999,
+                originalPrice: 149999,
+                discountPercentage: 40,
+                category: "moda",
+                link: "https://www.mercadolibre.com.ar/zapatillas-nike-airmax",
+                imageUrl: "https://http2.mlstatic.com/D_NQ_NP_2X_885240-MLA31987581139_082019-F.webp",
+                sourceWebsite: "mercadolibre.com.ar",
+                store: "mercadolibre",
+                freeShipping: true,
+                installments: 3
+            },
+            {
+                id: "MU1",
+                title: "Parlante Bluetooth JBL Charge 5 Portátil",
+                price: 119999,
+                originalPrice: 169999,
+                discountPercentage: 29,
+                category: "electronica",
+                link: "https://www.musimundo.com.ar/parlante-jbl-charge5",
+                imageUrl: "https://http2.mlstatic.com/D_NQ_NP_2X_841787-MLA44918115265_022021-F.webp",
+                sourceWebsite: "musimundo.com.ar",
+                store: "musimundo",
+                freeShipping: true,
+                installments: 6
+            },
+            {
+                id: "CA1",
+                title: "Pack 6 Botellas Vino Tinto Reserva",
+                price: 22999,
+                originalPrice: 38999,
+                discountPercentage: 41,
+                category: "alimentos",
+                link: "https://www.carrefour.com.ar/pack-vinos-reserva",
+                imageUrl: "https://http2.mlstatic.com/D_NQ_NP_2X_985112-MLA51027558270_082022-F.webp",
+                sourceWebsite: "carrefour.com.ar",
+                store: "carrefour",
+                freeShipping: false,
+                installments: 0
+            },
+            {
+                id: "ML4",
+                title: "Silla Gamer Ergonómica Reclinable",
+                price: 149999,
+                originalPrice: 229999,
+                discountPercentage: 35,
+                category: "hogar",
+                link: "https://www.mercadolibre.com.ar/silla-gamer-ergonomica",
+                imageUrl: "https://http2.mlstatic.com/D_NQ_NP_2X_933138-MLA47403712308_092021-F.webp",
+                sourceWebsite: "mercadolibre.com.ar",
+                store: "mercadolibre",
+                freeShipping: true,
+                installments: 12
+            }
+        ];
+
+        // Formatear precio en pesos argentinos
+        function formatPrice(price) {
+            return new Intl.NumberFormat('es-AR', {
+                style: 'currency',
+                currency: 'ARS',
+                maximumFractionDigits: 0
+            }).format(price);
+        }
+
+        // Crear tarjeta de oferta
+        function crearTarjetaOferta(oferta) {
+            return `
+                <a href="${oferta.link}" target="_blank" rel="noopener noreferrer" class="oferta-card">
+                    <div class="oferta-imagen">
+                        <img src="${oferta.imageUrl}" alt="${oferta.title}" loading="lazy">
+                        <div class="oferta-descuento">-${oferta.discountPercentage}%</div>
+                        ${oferta.freeShipping ? '<div class="oferta-envio">Envío gratis</div>' : ''}
+                    </div>
+                    <div class="oferta-contenido">
+                        <h3 class="oferta-titulo">${oferta.title}</h3>
+                        <div class="oferta-precios">
+                            <span class="oferta-precio-actual">${formatPrice(oferta.price)}</span>
+                            <span class="oferta-precio-original">${formatPrice(oferta.originalPrice)}</span>
+                        </div>
+                        ${oferta.installments > 0 ? 
+                            `<p class="oferta-cuotas">${oferta.installments}x ${formatPrice(oferta.price / oferta.installments)} sin interés</p>` : 
+                            ''}
+                        <div class="oferta-footer">
+                            <div class="oferta-tienda">${oferta.store}</div>
+                            <div class="oferta-link">Ver oferta →</div>
+                        </div>
+                    </div>
+                </a>
+            `;
+        }
+
+        // Mostrar ofertas en el contenedor
+        function mostrarOfertas(ofertas) {
+            const contenedor = document.getElementById('ofertas-contenedor');
+            contenedor.innerHTML = '';
+            
+            if (ofertas.length === 0) {
+                contenedor.innerHTML = '<p class="text-center">No se encontraron ofertas que coincidan con los filtros.</p>';
+                return;
+            }
+            
+            ofertas.forEach(oferta => {
+                const tarjeta = crearTarjetaOferta(oferta);
+                contenedor.innerHTML += tarjeta;
+            });
+        }
+
+        // Aplicar filtros a las ofertas
+        function aplicarFiltros() {
+            const categoria = document.getElementById('categoria').value;
+            const tienda = document.getElementById('tienda').value;
+            const ordenar = document.getElementById('ordenar').value;
+            
+            let ofertasFiltradas = [...OFERTAS];
+            
+            // Filtrar por categoría
+            if (categoria) {
+                ofertasFiltradas = ofertasFiltradas.filter(o => o.category === categoria);
+            }
+            
+            // Filtrar por tienda
+            if (tienda) {
+                ofertasFiltradas = ofertasFiltradas.filter(o => o.store === tienda);
+            }
+            
+            // Ordenar resultados
+            if (ordenar === 'precio') {
+                ofertasFiltradas.sort((a, b) => a.price - b.price);
+            } else if (ordenar === 'descuento') {
+                ofertasFiltradas.sort((a, b) => b.discountPercentage - a.discountPercentage);
+            }
+            
+            mostrarOfertas(ofertasFiltradas);
+        }
+
+        // Limpiar filtros
+        function limpiarFiltros() {
+            document.getElementById('categoria').value = '';
+            document.getElementById('tienda').value = '';
+            document.getElementById('ordenar').value = 'descuento';
+            
+            mostrarOfertas(OFERTAS);
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mostrar todas las ofertas al cargar
+            mostrarOfertas(OFERTAS);
+            
+            // Eventos de botones
+            document.getElementById('aplicar-filtros').addEventListener('click', aplicarFiltros);
+            document.getElementById('limpiar-filtros').addEventListener('click', limpiarFiltros);
+            
+            // Eventos de cambio en selects
+            document.getElementById('categoria').addEventListener('change', aplicarFiltros);
+            document.getElementById('tienda').addEventListener('change', aplicarFiltros);
+            document.getElementById('ordenar').addEventListener('change', aplicarFiltros);
+        });
+    </script>
+</body>
+</html>
